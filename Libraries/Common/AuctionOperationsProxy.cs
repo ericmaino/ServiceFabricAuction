@@ -14,14 +14,14 @@ namespace SFAuction.OperationsProxy {
       private static readonly JavaScriptSerializer m_serializer = new JavaScriptSerializer();
       private static readonly HttpClient s_httpClient =
          new HttpClient(new CircuitBreakerHttpMessageHandler(3, TimeSpan.FromSeconds(30)));
-      public readonly ServicePartitionEndpointResolver m_resolver;
-      protected OperationProxy(ServicePartitionEndpointResolver resolver, params JavaScriptConverter[] converters) {
+      public readonly Resolver m_resolver;
+      protected OperationProxy(Resolver resolver, params JavaScriptConverter[] converters) {
          m_serializer.RegisterConverters(converters);
          m_resolver = resolver;
       }
       private async Task<JsonRpcResponse> SendJsonRpcAsync(JsonRpcRequest request, CancellationToken cancellationToken) {
          // Send request to server:
-         String response = await m_resolver.ResolveAsync(cancellationToken, 
+         String response = await m_resolver.CallAsync(cancellationToken, 
             async (ep, ct) => await s_httpClient.GetStringAsync(ep + $"?jsonrpc={request.ToString()}").WithCancellation(cancellationToken).ConfigureAwait(false));
 
          // Get response from server:
@@ -51,8 +51,8 @@ namespace SFAuction.OperationsProxy {
    }
 
    public sealed class InternetAuctionOperationProxy : OperationProxy, IInternetOperations {
-      public InternetAuctionOperationProxy(ServicePartitionEndpointResolver sper) 
-         : base(sper, new DataTypeJsonConverter()) {
+      public InternetAuctionOperationProxy(Resolver resolver) 
+         : base(resolver, new DataTypeJsonConverter()) {
       }
 
       public Task<UserInfo> CreateUserAsync(String userEmail, CancellationToken cancellationToken) {
@@ -119,7 +119,7 @@ namespace SFAuction.OperationsProxy {
    }
 
    public sealed class InternalAuctionOperationProxy : OperationProxy, IInternalOperations {
-      public InternalAuctionOperationProxy(ServicePartitionEndpointResolver resolver) : base(resolver, new DataTypeJsonConverter()) {
+      public InternalAuctionOperationProxy(Resolver resolver) : base(resolver, new DataTypeJsonConverter()) {
       }
 
       public Task<Bid[]> PlaceBid2Async(String bidderEmail, String sellerEmail, String itemName, Decimal bidAmount, CancellationToken cancellationToken) {

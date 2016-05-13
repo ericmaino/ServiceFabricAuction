@@ -65,6 +65,7 @@
       <HintPath>..\..\packages\Microsoft.ServiceFabric.5.0.135\lib\net45\System.Fabric.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Web.Extensions" />
@@ -88,6 +89,7 @@
     <Compile Include="HttpCommunicationListener.cs" />
     <Compile Include="Core Data Types\ItemId.cs" />
     <Compile Include="Core Data Types\ItemInfo.cs" />
+    <Compile Include="PartitionEndpointResolver.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Core Data Types\UserInfo.cs" />
     <Compile Include="ServiceFabricExtensions.cs" />

@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 using Microsoft.ServiceFabric.Services.Communication.Runtime;
 using Microsoft.ServiceFabric.Services.Runtime;
+using Richter.Utilities;
 using SFAuction.Common;
 using SFAuction.JsonRpc;
 using SFAuction.OperationsProxy;
@@ -23,9 +24,11 @@ namespace SFAuction.Svc.ApiGateway {
       #region private fields
       private const String c_RestEndpoint = "RestEndpoint";
       private static readonly JavaScriptSerializer s_jsSerializer = new JavaScriptSerializer();
-      private static readonly Uri AuctionServiceName = new Uri(@"fabric:/SFAuction/AuctionSvcInstance");
+      private static readonly Uri AuctionServiceNameUri = new Uri(@"fabric:/SFAuction/AuctionSvcInstance");
       private static readonly HttpClient s_httpClient = new HttpClient();
-      private readonly ServiceOperations m_operations = new ServiceOperations(AuctionServiceName);
+      private static readonly PartitionEndpointResolver m_partitionEndpointResolver =
+         new PartitionEndpointResolver();
+      private readonly ServiceOperations m_operations = new ServiceOperations(m_partitionEndpointResolver, AuctionServiceNameUri);
       private String m_selfUrl;
       private Boolean firstTime = true;
       static ApiGatewaySvc() { s_jsSerializer.RegisterConverters(new[] { new DataTypeJsonConverter() }); }
@@ -86,7 +89,7 @@ namespace SFAuction.Svc.ApiGateway {
       private async Task<String> PrimeAsync(String selfUrl, CancellationToken cancellationToken) {
          const String imageUrl = "images/";
          DateTime now = DateTime.UtcNow;
-         var proxy = new ServiceOperations(new Uri(@"fabric:/SFAuction/AuctionSvcInstance"));
+         var proxy = new ServiceOperations(m_partitionEndpointResolver, new Uri(@"fabric:/SFAuction/AuctionSvcInstance"));
          const String Jeff = "Jeff@Microsoft.com", Chacko = "Chacko@Microsoft.com";
 
          try {

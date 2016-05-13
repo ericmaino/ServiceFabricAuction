@@ -10,14 +10,14 @@ using System.Web.Script.Serialization; // System.Web.Extensions.dll
 using Microsoft.ServiceFabric.Services.Client;
 
 namespace Richter.Utilities {
-   public sealed class ServicePartitionEndpointResolver {
+   public sealed class ServicePartitionEndpointResolverDelete {
       private readonly ServicePartitionResolver m_spr;
       public readonly Uri ServiceName;
       public readonly String EndpointName;
       public readonly ServicePartitionKey PartitionKey;
       private ResolvedServicePartition m_rsp = null;
       private String m_endpoint = null;
-      public ServicePartitionEndpointResolver(ServicePartitionResolver resolver, Uri serviceName, String endpointName, ServicePartitionKey partitionKey) {
+      public ServicePartitionEndpointResolverDelete(ServicePartitionResolver resolver, Uri serviceName, String endpointName, ServicePartitionKey partitionKey) {
          m_spr = resolver;
          ServiceName = serviceName;
          EndpointName = endpointName;

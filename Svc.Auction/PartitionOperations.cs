@@ -13,10 +13,10 @@ using System.Threading.Tasks;
 
 namespace SFAuction.Svc.Auction {
    internal sealed class PartitionOperations : IInternetOperations, IInternalOperations {
-      private static readonly Uri AuctionServiceName = new Uri(@"fabric:/SFAuction/AuctionSvcInstance");
+      private static readonly Uri AuctionServiceNameUri = new Uri(@"fabric:/SFAuction/AuctionSvcInstance");
       #region Infrastructure
-      private static readonly ServicePartitionResolver s_servicePartitionResolver
-         = ServicePartitionResolver.GetDefault();
+      private static readonly PartitionEndpointResolver s_partitionEndpointResolver
+         = new PartitionEndpointResolver();
       private readonly IReliableStateManager m_stateMgr;
       private readonly IReliableDictionary<Email, UserInfo> m_users;
       private readonly ReliableList<ItemId> m_unexpiredItems;
@@ -38,12 +38,6 @@ namespace SFAuction.Svc.Auction {
       }
 
       private ITransaction CreateTransaction() => m_stateMgr.CreateTransaction();
-
-      private async Task<String> GetUserPartitionEndpointAsync(Email userEmail, CancellationToken cancellationToken) {
-         String primaryReplicaInternalEndpoint =
-             (await s_servicePartitionResolver.ResolveEndpointsAsync(AuctionServiceName, new ServicePartitionKey(userEmail.PartitionKey()), cancellationToken))["ReplicaEndpoint"];
-         return primaryReplicaInternalEndpoint;
-      }
       #endregion
 
       /// <summary>
@@ -132,7 +126,7 @@ namespace SFAuction.Svc.Auction {
             // The bidder could bid again (which is why adding the item is idempotent). 
          }
          // Tell seller's partition to place a bid
-         var proxy = (IInternalOperations)new ServiceOperations(AuctionServiceName);
+         var proxy = (IInternalOperations)new ServiceOperations(s_partitionEndpointResolver, AuctionServiceNameUri);
          return await proxy.PlaceBid2Async(bidderEmail, sellerEmail, itemName, bidAmount, ct);
       }
 
