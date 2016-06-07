@@ -57,7 +57,7 @@ namespace SFAuction.Svc.Auction
 
         private void StartWebListener(IAppBuilder app, string routePrefix)
         {
-            WebAppStart.ConfigureApp(app, routePrefix);
+            WebAppStart.ConfigureApp(app, routePrefix, d => new StatefulServiceDependencyResolver(StateManager, d));
         }
 
         private ICommunicationListener CreateInternalListener(StatefulServiceContext context)
